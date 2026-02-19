@@ -1,0 +1,61 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  ADMIN
+  CUSTOMER
+}
+
+enum CarStatus {
+  AVAILABLE
+  UNAVAILABLE
+}
+
+model User {
+  id           String        @id @default(cuid())
+  name         String
+  email        String        @unique
+  role         UserRole      @default(CUSTOMER)
+  reservations Reservation[]
+  createdAt    DateTime      @default(now())
+}
+
+model Car {
+  id           String        @id @default(cuid())
+  brand        String
+  model        String
+  pricePerDay  Int
+  status       CarStatus     @default(AVAILABLE)
+  reservations Reservation[]
+  createdAt    DateTime      @default(now())
+}
+
+model Reservation {
+  id        String   @id @default(cuid())
+  userId    String
+  carId     String
+  startDate DateTime
+  endDate   DateTime
+  days      Int
+  total     Int
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  car       Car      @relation(fields: [carId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([carId])
+  @@index([carId, startDate, endDate])
+}
