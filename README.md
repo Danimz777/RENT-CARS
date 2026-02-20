@@ -1,36 +1,117 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# RENT-CARS — Prueba Técnica (Sistema de alquiler de carros)
 
-## Getting Started
+Repo: https://github.com/Danimz777/RENT-CARS.git  
+Demo (Vercel): https://rent-cars-six.vercel.app
 
-First, run the development server:
+Mini app:
+- **Módulo visual:** ver autos disponibles, reservar y ver historial.
+- **Módulo admin:** CRUD de autos.
 
+---
+
+## Decisiones tomadas 
+
+### 1 Tecnologías elegidas 
+- **Next.js + React**: lo hice con Next.js (App Router) porque me permite tener **frontend y API en el mismo proyecto** (páginas y endpoints en `src/app`), y así entregar una miniapp completa.
+- **TypeScript**: lo mantuve desde el inicio porque la prueba lo evalúa. Tipé entidades (`Car`, `Reservation`), estados `AVAILABLE/UNAVAILABLE` y el manejo de datos en componentes para reducir errores.
+- **PostgreSQL (Neon)**: usé Neon porque para **desplegar en Vercel** necesitaba una base en la nube, no algo local como SQLite.
+- **Prisma**: lo usé como ORM para definir el modelo (`User`, `Car`, `Reservation`), manejar migraciones y tener consultas tipadas en el backend.
+
+### 2 Por qué terminé usando Prisma v7 + adapter (deploy estable)
+En despliegue apareció el caso de Prisma v7 donde el cliente requiere un **adapter**, por eso:
+- configuré `PrismaClient` con `pg` (Pool) + `@prisma/adapter-pg` en `src/lib/prisma.ts`.
+- dejé `postinstall: prisma generate` en `package.json` para que Vercel genere Prisma Client al instalar dependencias.
+
+La idea fue evitar errores en producción y que el deploy sea estable.
+
+### 3 “Usuario actual” sin login (MVP)
+La prueba pide “mostrar reservas del usuario actual”, pero no exige autenticación.
+Entonces lo resolví como MVP:
+- el usuario actual se identifica por **email**,
+- para el historial uso `GET /api/reservations/me` enviando el header `x-user-email`,
+- y en la UI lo guardo en `localStorage` para que sea fácil probar.
+
+### 4  auto-creación del usuario
+Para que cualquiera pueda probar con cualquier email:
+- al reservar, si el usuario no existe, lo creo automáticamente con `upsert` como `CUSTOMER`.
+Así evito el error típico de “Usuario no encontrado” durante la demo.
+
+### 5 Reglas importantes en backend 
+Para mantener consistencia:
+- el cálculo de `days` y `total` lo hago en backend (`total = pricePerDay * days`),
+- el cambio de estado del auto a **UNAVAILABLE** también es backend,
+- la validación de fechas y errores también.
+
+
+
+### 6 Validación de solapamiento (no doble reserva por fechas)
+Antes de crear una reserva valido que el auto no tenga otra reserva que se cruce con esas fechas
+(usando la regla típica de overlap: `start <= endNuevo` y `end >= startNuevo`).
+
+### 7 Consistencia usando transacción
+Al crear una reserva hago 2 cambios:
+1) creo la reserva,
+2) actualizo el auto a `UNAVAILABLE`.
+
+Eso lo hago en una **transacción** para no dejar el sistema a medias si algo falla.
+
+### 8 “SOLID” aplicado sin sobrecomplicar
+No hice arquitectura exagerada, pero sí separé por responsabilidades:
+- UI: `src/app/**` (páginas)
+- API: `src/app/api/**` (rutas)
+- Services: `src/services/**` (lógica de negocio)
+- Domain: `src/domain/**` (reglas puras de fechas/cálculos)
+- Lib: `src/lib/**` (Prisma / utilidades)
+
+La idea es que las rutas sean delgadas y la lógica viva en services (más fácil de mantener y explicar).
+
+### 9 Fix de enums en deploy
+En Vercel apareció un error con enums exportados, así que en algunos puntos usé `$Enums` de Prisma
+para que el build quedara estable.
+
+### 10 Manejo de promesas y asincronía (async/await)
+La app trabaja con operaciones asíncronas tanto en frontend como en backend:
+
+- **Backend (API Routes y Services):** usé `async/await` para manejar consultas a la base de datos con Prisma (por ejemplo crear/listar reservas, actualizar estado del carro y CRUD de autos). Esto se ve en los endpoints dentro de `src/app/api/**` y en el service `src/services/reservation.service.ts`.  
+- **Transacciones:** al reservar, la creación de la reserva y la actualización del auto se ejecutan dentro de `prisma.$transaction(...)`, que es una operación asíncrona y se controla con `await`.
+- **Frontend:** para consumir la API usé `fetch` con `await` y manejo de estados como `loading` y `error` (por ejemplo en `/my-reservations` para cargar historial y en `/cars` para crear reservas). La idea fue dar feedback al usuario mientras se resuelven las promesas.
+
+En general, la app controla los flujos asíncronos con `try/catch` para responder con errores claros cuando algo falla.
+
+PASO A PASO DE COMO LEVANTAR EL PROYECTO 
+
+> Requisitos:
+> - Node.js instalado (recomendado 18+)
+> - Una base PostgreSQL (en esta prueba se usó Neon)
+> - La variable `DATABASE_URL` configurada
+
+## Paso 1 — Clonar el repositorio
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+git clone https://github.com/Danimz777/RENT-CARS.git
+cd RENT-CARS
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Paso 2 - Instalar dependencias
+npm install 
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Paso 3 - Crear archivo .env 
+PEGAR: DATABASE_URL="postgresql://neondb_owner:npg_sqciI1RUFl5W@ep-aged-surf-aikul8hw-pooler.c-4.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Paso 4 - aplicar migraciones(crear tablas)
+npx prisma migrate deploy 
 
-## Learn More
+## paso 5 - ejecutar en modo desarrollo 
+npm run dev 
 
-To learn more about Next.js, take a look at the following resources:
+Abrir:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Home: http://localhost:3000/
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Visual: http://localhost:3000/cars
 
-## Deploy on Vercel
+Historial: http://localhost:3000/my-reservations
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Admin: http://localhost:3000/admin/cars
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+ 
