@@ -1,66 +1,99 @@
-import Image from "next/image";
-import styles from "./page.module.css";
-
 export default function Home() {
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.tsx file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+    <main
+      style={{
+        maxWidth: 900,
+        margin: "0 auto",
+        padding: "48px 20px",
+        fontFamily: "system-ui",
+      }}
+    >
+      <h1 style={{ fontSize: 44, margin: 0 }}>Rent Cars</h1>
+      <p style={{ marginTop: 10, fontSize: 16, color: "#444", lineHeight: 1.6 }}>
+        Mini app de alquiler de carros: ver autos disponibles, crear una reserva y
+        revisar el historial de alquileres del usuario.
+      </p>
+
+      <div
+        style={{
+          marginTop: 24,
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+          gap: 14,
+        }}
+      >
+        <a
+          href="/cars"
+          style={{
+            border: "1px solid #ddd",
+            borderRadius: 12,
+            padding: 16,
+            textDecoration: "none",
+            color: "#111",
+            background: "#fff",
+          }}
+        >
+          <div style={{ fontSize: 18, fontWeight: 700 }}>Autos disponibles</div>
+          <div style={{ marginTop: 6, color: "#555" }}>
+            Ver listado público y reservar.
+          </div>
+        </a>
+
+        <a
+          href="/my-reservations"
+          style={{
+            border: "1px solid #ddd",
+            borderRadius: 12,
+            padding: 16,
+            textDecoration: "none",
+            color: "#111",
+            background: "#fff",
+          }}
+        >
+          <div style={{ fontSize: 18, fontWeight: 700 }}>Mis reservas</div>
+          <div style={{ marginTop: 6, color: "#555" }}>
+            Consultar historial del usuario actual.
+          </div>
+        </a>
+
+        <a
+          href="/admin/cars"
+          style={{
+            border: "1px solid #ddd",
+            borderRadius: 12,
+            padding: 16,
+            textDecoration: "none",
+            color: "#111",
+            background: "#fff",
+          }}
+        >
+          <div style={{ fontSize: 18, fontWeight: 700 }}>Admin</div>
+          <div style={{ marginTop: 6, color: "#555" }}>
+            CRUD de autos (módulo administrativo).
+          </div>
+        </a>
+      </div>
+
+      <div
+        style={{
+          marginTop: 22,
+          border: "1px solid #eee",
+          borderRadius: 12,
+          padding: 16,
+          background: "#fafafa",
+          color: "#333",
+          lineHeight: 1.6,
+        }}
+      >
+        <b>Checklist:</b>
+        <ul style={{ margin: "10px 0 0 18px" }}>
+          <li>Listado de autos disponibles</li>
+          <li>Reserva con cálculo de total y cambio a “no disponible”</li>
+          <li>Historial por usuario</li>
+          <li>Validación de solapamiento de fechas</li>
+          <li>Módulo Admin (CRUD de autos)</li>
+        </ul>
+      </div>
+    </main>
   );
 }
