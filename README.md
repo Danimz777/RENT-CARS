@@ -93,8 +93,11 @@ cd RENT-CARS
 ## Paso 2 - Instalar dependencias
 npm install 
 
-## Paso 3 - Crear archivo .env 
-PEGAR: DATABASE_URL="postgresql://neondb_owner:npg_sqciI1RUFl5W@ep-aged-surf-aikul8hw-pooler.c-4.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+## Paso 3 - Crear archivo .env
+Crear un archivo `.env` en la raíz del proyecto:
+DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DATABASE?sslmode=require"
+
+Configurar esta variable con una base PostgreSQL propia (por ejemplo Neon).
 
 ## Paso 4 - aplicar migraciones(crear tablas)
 npx prisma migrate deploy 

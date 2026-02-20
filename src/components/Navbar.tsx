@@ -28,7 +28,7 @@ const brand: React.CSSProperties = {
 
 const badge: React.CSSProperties = {
   fontSize: 12,
-  color: "#bdbdbd",
+  color: "#000000",
   border: "1px solid #2a2a2a",
   borderRadius: 999,
   padding: "4px 10px",
