@@ -1,6 +1,6 @@
 // src/services/reservation.service.ts
 import { prisma } from "@/lib/prisma";
-import { CarStatus } from "@prisma/client";
+import { $Enums } from "@prisma/client";
 import {
   toStartOfDay,
   toEndOfDay,
@@ -43,7 +43,7 @@ export async function createReservation(input: CreateReservationInput) {
   });
 
   if (!car) throw new Error("Auto no encontrado");
-  if (car.status !== CarStatus.AVAILABLE) {
+  if (car.status !== $Enums.CarStatus.AVAILABLE) {
     throw new Error("Este auto no está disponible");
   }
 
@@ -79,7 +79,7 @@ export async function createReservation(input: CreateReservationInput) {
 
     await tx.car.update({
       where: { id: car.id },
-      data: { status: CarStatus.UNAVAILABLE },
+      data: { status: $Enums.CarStatus.UNAVAILABLE },
     });
 
     return created;

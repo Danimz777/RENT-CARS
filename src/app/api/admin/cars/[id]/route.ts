@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { CarStatus } from "@prisma/client";
+import { $Enums } from "@prisma/client";
 
 export async function DELETE(
   _request: Request,
@@ -33,7 +33,7 @@ export async function PUT(
     const brand = String(body.brand ?? "").trim();
     const model = String(body.model ?? "").trim();
     const pricePerDay = Number(body.pricePerDay);
-    const status = body.status as CarStatus;
+    const status = body.status as $Enums.CarStatus;
 
     if (!id) {
       return NextResponse.json({ message: "Falta el id del auto" }, { status: 400 });
